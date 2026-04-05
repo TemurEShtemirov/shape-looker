@@ -1,15 +1,17 @@
-import "../assets/css/gameBoard.css";
+import "../assets/css/gameBar.css";
 import Shape from "./shape";
-function GameBoard({ shapes, onShapeClick }) {
+const GameBoard = ({ shapes, onShapeClick }) => {
     return (
         <div className="game-board">
-            <Shape
-                key={shape.id}
-                {...shapes}
-                onclick={() => onShapeClick(shape.id)}
-            />
+            {shapes.map(shape => (
+                <Shape
+                    key={shape.id}
+                    {...shape}
+                    onClick={() => onShapeClick(shape.id)}
+                />
+            ))}
         </div>
-    )
-}
+    );
+};
 
 export default GameBoard;

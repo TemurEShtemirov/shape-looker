@@ -1,16 +1,17 @@
-const Shape = ({ x, y, size, color, onclick }) => {
+const Shape = ({ x, y, size, color, onClick }) => {
     const style = {
+        position: 'absolute',
         left: `${x}%`,
         top: `${y}%`,
-        width: `${size}%`,
-        height: `${size}%`,
+        width: `${size}px`,
+        height: `${size}px`,
         backgroundColor: color,
-        position: 'absolute',
-        borderRadius: size > 50 ? "8px" : "50%",
-        cursor: "poiniter",
-        transition: 'all 0.2 ease'
+        borderRadius: '50%',
+        cursor: 'pointer',
+        transition: 'all 0.1s ease-out'
     };
-    return <div style = { style } onClick = { onclick } />
-}
+
+    return <div style={style} onClick={onClick} />;
+};
 
 export default Shape;

@@ -7,7 +7,9 @@ function App() {
   const [shapes, setShapes] = useState([])
   const [currentSize, setCurrentSize] = useState(100)
 
-  const spawnShape = () => {
+  const handleHit = () => {
+    setCurrentSize(prev => Math.max(prev - 10, 15));
+
     const newShape = {
       id: Date.now(),
       x: getRandomPos(),
@@ -16,19 +18,20 @@ function App() {
       color: getRandomPaletteColor()
     }
     setShapes([newShape])
-
     //INFO the "shrink" logic
-    setCurrentSize(prev => Math.max(prev - 10, 15));
+    console.log(newShape);
+
   }
 
   return (
     <>
       <div className="App">
         <h1 style={{ textAlign: "center" }}>Shape Looker: Phase 1</h1>
-        <button onClick={spawnShape} style={{ display: "block", margin: "10px auto" }}>
-          {shapes.length === 0 ? "Start Game" : "Spawn Next"}
-        </button>
-        <GameBoard shapes={shapes} onShapeClick={spawnShape} />
+        {shapes.length === 0 ? (
+          <button onClick={handleHit}>Start Game</button>
+        ) : (
+          <GameBoard shapes={shapes} onShapeClick={handleHit} />
+        )}
       </div>
     </>
   )
