@@ -8,7 +8,7 @@ const Shape = ({ x, y, size, color, onClick }) => {
         backgroundColor: color,
         borderRadius: '50%',
         cursor: 'pointer',
-        transition: 'all 0.1s ease-out'
+        transition: 'all 1s ease-out'
     };
 
     return <div style={style} onClick={onClick} />;
