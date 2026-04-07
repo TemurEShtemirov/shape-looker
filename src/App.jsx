@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import GameBoard from './components/gameBoard'
 import { motion, AnimatePresence } from 'framer-motion';
 import Timer from './components/timer'
@@ -61,6 +61,36 @@ function App() {
     restartGame();
   };
 
+  
+  useEffect(() => {
+    let interval;
+
+    if (isGameOver) {
+      // Stage 3: Game Over - FLASHING MODE
+      const originalTitle = `Score: ${score}! 🎯`;
+      const altTitle = "❌ GAME OVER";
+      let showingOriginal = true;
+
+      // Start the flash interval
+      interval = setInterval(() => {
+        document.title = showingOriginal ? originalTitle : altTitle;
+        showingOriginal = !showingOriginal;
+      }, 1000);
+
+    } else if (isActive) {
+      // Stage 2: Playing - Active Mode
+      document.title = `Loook for... 👀 (${score})`;
+    } else {
+      // Stage 1: Idle - Brand Mode
+      document.title = `Loooker v1.0.1`;
+    }
+
+    // CLEANUP: This is crucial! It stops the interval when the component 
+    // rerenders or the game restarts.
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isGameOver, isActive, score]);
   return (
     <div className="App relative min-h-screen bg-black overflow-hidden flex items-center justify-center">
       <LiquidFilter />
