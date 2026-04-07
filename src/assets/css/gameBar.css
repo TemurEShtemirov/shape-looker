@@ -7,7 +7,7 @@
     height: 70vh;
     position: relative;
     /* REQUIRED: So shapes can use position: absolute */
-    margin: 120px auto 20px;
+    margin: 10px auto 20px;
 
     /* 2. Visual Style */
     display: flex;
@@ -16,6 +16,7 @@
     background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0f0f1a 100%);
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 24px;
+    transition: all 0.3s ease;
     /* Matches the "Liquid/OIS" rounded aesthetic */
 
     /* 3. The Liquid Secret */

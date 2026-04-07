@@ -22,7 +22,7 @@ export const useGameLogic = () => {
 
   // Use this for the very first click
   const startGame = () => {
-    setIsActive(true);
+    setIsActive(true);  
     setIsGameOver(false);
     setScore(0);
     setTimeLeft(3);
