@@ -15,27 +15,41 @@ function App() {
 
   const handleHit = () => {
     if (isGameOver) return;
+    if (!isActive) startGame();
 
-    // 1. If the game isn't active yet, start the timer on first click
-    if (!isActive) {
-      startGame();
+    // 1. Define the "Chaos Factor"
+    const roll = Math.random(); // 0.0 to 1.0
+    let nextSize;
+
+    if (roll > 0.92) {
+      // RARE: "The Giant" (8% chance) 
+      // The shape suddenly grows back to a medium-large size
+      nextSize = Math.floor(Math.random() * 20) + 60;
+    } else if (roll > 0.6) {
+      // COMMON: "The Steady" 
+      // Small decrease to keep the rhythm
+      nextSize = Math.max(currentSize - (Math.random() * 5), 20);
+    } else {
+      // AGGRESSIVE: "The Shrink" 
+      // Rapidly gets smaller to challenge the player
+      nextSize = Math.max(currentSize - (Math.random() * 15 + 5), 10);
     }
 
-    // 2. Shrink Logic: Decrease size by 10px, but don't go below 15px
-    const nextSize = Math.max(currentSize - 10, 15);
-    setCurrentSize(nextSize);
+    // 2. Final Floor Check
+    // Ensures it never disappears completely, but 10px is an "Extreme" challenge
+    const finalSize = Math.max(Math.floor(nextSize), 10);
+    setCurrentSize(finalSize);
 
-    // 3. Create the next target
+    // 3. Create the Shape
     const newShape = {
       id: Date.now(),
       x: getRandomPos(),
       y: getRandomPos(),
-      size: nextSize,
+      size: finalSize,
       color: getRandomPaletteColor()
-    }
+    };
 
-    // 4. Reward the player
-    addTime(); // Refills the timer bucket (max 5s) and adds +1 score
+    addTime();
     setShapes([newShape]);
   };
 
@@ -88,7 +102,7 @@ function App() {
             transition={{ duration: 0.4 }}
             className="w-full h-full flex flex-col items-center"
           >
-         
+
             <div className="game-hud fixed top-10 w-full max-w-2xl px-6 flex flex-col items-center z-50">
               <Timer time={timeLeft} />
               <div className="text-white/40 font-mono text-sm tracking-widest mt-2 uppercase">
@@ -96,7 +110,7 @@ function App() {
               </div>
             </div>
 
-          
+
             <div className="mt-40 w-full flex justify-center">
               <GameBoard shapes={shapes} onShapeClick={handleHit} />
             </div>
