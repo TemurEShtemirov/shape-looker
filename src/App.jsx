@@ -38,6 +38,8 @@ function App() {
     // 2. Final Floor Check
     // Ensures it never disappears completely, but 10px is an "Extreme" challenge
     const finalSize = Math.max(Math.floor(nextSize), 10);
+    // console.log(finalSize);
+
     setCurrentSize(finalSize);
 
     // 3. Create the Shape
@@ -63,6 +65,12 @@ function App() {
     <div className="App relative min-h-screen bg-black overflow-hidden flex items-center justify-center">
       <LiquidFilter />
 
+      {/* --- AUTHOR TAG (WERTEXT / TIMAA) --- */}
+      <div className="fixed bottom-8 left-8 z-[100] flex flex-col items-start opacity-30 hover:opacity-100 transition-opacity duration-500 cursor-default">
+        <span className="text-white/40 text-[10px] font-mono tracking-[0.3em] uppercase">Developed_By</span>
+        <span className="text-white font-black text-xs tracking-widest uppercase">timaa</span>
+      </div>
+
       <AnimatePresence mode="wait">
         {isGameOver ? (
           // --- SCENE 1: GAME OVER ---
@@ -75,7 +83,7 @@ function App() {
           >
             <h1 className="text-white text-6xl font-black mb-4">OUT OF TIME!</h1>
             <p className="text-cyan-400 text-2xl mb-8 font-mono">Score: {score}</p>
-            <button onClick={handleRestart} className="px-10 py-4 bg-white rounded-full font-bold">
+            <button onClick={handleRestart} className="px-10 py-4 bg-white rounded-full font-bold hover:scale-105 transition-transform">
               Try Again
             </button>
           </motion.div>
@@ -88,7 +96,7 @@ function App() {
             exit={{ opacity: 0, y: -50, filter: "blur(20px)" }}
             className="z-50"
           >
-            <button onClick={handleHit} className="start-btn text-white text-4xl font-black">
+            <button onClick={handleHit} className="start-btn text-white text-4xl font-black hover:text-cyan-400 transition-colors">
               START GAME
             </button>
           </motion.div>
@@ -102,7 +110,6 @@ function App() {
             transition={{ duration: 0.4 }}
             className="w-full h-full flex flex-col items-center"
           >
-
             <div className="game-hud fixed top-10 w-full max-w-2xl px-6 flex flex-col items-center z-50">
               <Timer time={timeLeft} />
               <div className="text-white/40 font-mono text-sm tracking-widest mt-2 uppercase">
@@ -110,11 +117,9 @@ function App() {
               </div>
             </div>
 
-
             <div className="mt-40 w-full flex justify-center">
               <GameBoard shapes={shapes} onShapeClick={handleHit} />
             </div>
-
           </motion.div>
         )}
       </AnimatePresence>
