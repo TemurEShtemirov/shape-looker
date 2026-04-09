@@ -61,7 +61,7 @@ function App() {
     restartGame();
   };
 
-  
+
   useEffect(() => {
     let interval;
 
