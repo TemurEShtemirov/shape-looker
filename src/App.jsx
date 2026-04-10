@@ -5,10 +5,13 @@ import Timer from './components/timer'
 import LiquidFilter from './assets/svg/liquidFilter'
 import { getRandomPos, getRandomPaletteColor } from './utils/random'
 import { useGameLogic } from './hooks/useGameLogic'
+import { useTheme } from './context/ThemeContext';
+import ThemeToggleButton from './components/ThemeToggleButton';
 
 function App() {
   const [shapes, setShapes] = useState([])
   const [currentSize, setCurrentSize] = useState(100)
+  const { isDarkMode, toggleTheme } = useTheme()
 
   // Pulling everything from your custom hook
   const { timeLeft, isGameOver, addTime, restartGame, score, isActive, startGame } = useGameLogic();
@@ -17,44 +20,43 @@ function App() {
     if (isGameOver) return;
     if (!isActive) startGame();
 
-    // 1. Define the "Chaos Factor"
-    const roll = Math.random(); // 0.0 to 1.0
+    // 1. Define the "Chaos Factor" for Size
+    const roll = Math.random();
     let nextSize;
 
     if (roll > 0.92) {
-      // RARE: "The Giant" (8% chance) 
-      // The shape suddenly grows back to a medium-large size
       nextSize = Math.floor(Math.random() * 20) + 60;
     } else if (roll > 0.6) {
-      // COMMON: "The Steady" 
-      // Small decrease to keep the rhythm
       nextSize = Math.max(currentSize - (Math.random() * 5), 20);
     } else {
-      // AGGRESSIVE: "The Shrink" 
-      // Rapidly gets smaller to challenge the player
       nextSize = Math.max(currentSize - (Math.random() * 15 + 5), 10);
     }
 
-    // 2. Final Floor Check
-    // Ensures it never disappears completely, but 10px is an "Extreme" challenge
     const finalSize = Math.max(Math.floor(nextSize), 10);
-    // console.log(finalSize);
-
     setCurrentSize(finalSize);
 
-    // 3. Create the Shape
+    // 2. Select a random Shape Type
+    const shapeTypes = [
+      'circle', 'square', 'triangle', 'diamond', 'hexagon',
+      'octagon', 'star', 'heart', 'cross', 'parallelogram',
+      'blob_a', 'blob_b'
+    ];
+    const randomType = shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
+
+    // 3. Create the Shape with Type
     const newShape = {
       id: Date.now(),
-      x: getRandomPos(),
+      x: getRandomPos(), // Ensure this returns 10-90 for safety
       y: getRandomPos(),
       size: finalSize,
+      type: randomType, // Pass the type to your Shape.jsx component
       color: getRandomPaletteColor()
     };
 
     addTime();
     setShapes([newShape]);
   };
-
+  //INFO func to restart game after game over, also resets the size and clears the shapes
   const handleRestart = () => {
     setCurrentSize(100);
     setShapes([]);
@@ -82,7 +84,7 @@ function App() {
       document.title = `Loook for... 👀 (${score})`;
     } else {
       // Stage 1: Idle - Brand Mode
-      document.title = `Loooker v1.0.1`;
+      document.title = `Loooker v1.2.0`;
     }
 
     // CLEANUP: This is crucial! It stops the interval when the component 
@@ -91,34 +93,66 @@ function App() {
       if (interval) clearInterval(interval);
     };
   }, [isGameOver, isActive, score]);
+
+
+  const backgroundStyle = {
+    background: isDarkMode
+      ? 'radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0f0f1a 100%)'
+      : 'radial-gradient(circle at 50% 50%, #f8fafc 0%, #e2e8f0 100%)'
+  };
   return (
-    <div className="App relative min-h-screen bg-black overflow-hidden flex items-center justify-center">
+    <div style={backgroundStyle}
+      className={`App relative min-h-[100dvh] w-full flex flex-col items-center justify-center transition-all duration-700 
+      ${isDarkMode ? 'dark-mode-container' : 'light-mode-container'}`}>
+
       <LiquidFilter />
 
-      {/* --- AUTHOR TAG (WERTEXT / TIMAA) --- */}
+      {/* --- GLOBAL UI (Always Visible) --- */}
+
+
+      {/* 2. THE AUTHOR TAG - Dynamic Colors */}
       <div className="fixed bottom-8 left-8 z-[100] flex flex-col items-start opacity-30 hover:opacity-100 transition-opacity duration-500 cursor-default">
-        <span className="text-white/40 text-[10px] font-mono tracking-[0.3em] uppercase">Developed_By</span>
-        <span className="text-white font-black text-xs tracking-widest uppercase">timaa</span>
+        <span className={`text-[10px] font-mono tracking-[0.3em] uppercase ${isDarkMode ? 'text-white/40' : 'text-black/40'}`}>
+          Developed_By
+        </span>
+        <span className={`font-black text-xs tracking-widest uppercase ${isDarkMode ? 'text-white' : 'text-black'}`}>
+          timaa
+        </span>
       </div>
 
+      {/* --- SCENE MANAGER --- */}
       <AnimatePresence mode="wait">
         {isGameOver ? (
-          // --- SCENE 1: GAME OVER ---
+          /* SCENE 1: GAME OVER */
           <motion.div
             key="gameover"
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
-            className="game-over z-50 flex flex-col items-center"
+            className="z-50 flex flex-col items-center"
           >
-            <h1 className="text-white text-6xl font-black mb-4">OUT OF TIME!</h1>
-            <p className="text-cyan-400 text-2xl mb-8 font-mono">Score: {score}</p>
-            <button onClick={handleRestart} className="px-10 py-4 bg-white rounded-full font-bold hover:scale-105 transition-transform">
-              Try Again
-            </button>
+
+            <ThemeToggleButton isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+            <h1 className={`text-4xl sm:text-6xl font-black mb-4 italic text-center ${isDarkMode ? 'text-white' : 'text-black'
+              }`}>OUT OF TIME!</h1>
+            <p className="text-cyan-400 text-2xl mb-8 font-mono tracking-tighter">Score: {score}</p>
+
+            <motion.button
+              onClick={handleRestart}
+              className="fluid-btn mt-10 px-12 py-4 rounded-2xl text-xs font-black uppercase tracking-[0.2em]"
+              whileHover={{
+                borderRadius: "40px 40px 40px 40px",
+                backgroundColor: "rgba(255, 255, 255, 0.2)",
+                width: "350px",
+                transition: { duration: 0.3 }
+              }}
+            >
+              TRY AGAIN
+            </motion.button>
           </motion.div>
+
         ) : shapes.length === 0 ? (
-          // --- SCENE 2: START SCREEN ---
+          /* SCENE 2: START SCREEN */
           <motion.div
             key="start"
             initial={{ opacity: 0 }}
@@ -126,35 +160,37 @@ function App() {
             exit={{ opacity: 0, y: -50, filter: "blur(20px)" }}
             className="z-50"
           >
-            <button onClick={handleHit} className="start-btn text-white text-4xl font-black hover:text-cyan-400 transition-colors">
+            <ThemeToggleButton isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+            <button
+              onClick={handleHit}
+              className={`text-5xl sm:text-7xl font-black italic tracking-tighter transition-colors ${isDarkMode ? 'text-white hover:text-cyan-400' : 'text-black hover:text-cyan-600'
+                }`}
+            >
               START GAME
             </button>
           </motion.div>
+
         ) : (
-          // --- SCENE 3: THE GAME BOARD ---
           <motion.div
             key="gameboard"
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-            transition={{ duration: 0.4 }}
-            className="w-full h-full flex flex-col items-center"
+            className="w-full max-w-md flex flex-col items-center flex-grow justify-evenly"
           >
-            <div className="game-hud fixed top-10 w-full max-w-2xl px-6 flex flex-col items-center z-50">
+            <div className="w-full px-6 flex flex-col items-center">
               <Timer time={timeLeft} />
-              <div className="text-white/40 font-mono text-sm tracking-widest mt-2 uppercase">
-                Score: <span className="text-white font-bold">{score}</span>
+              <div className={`font-mono text-[10px] sm:text-xs tracking-[0.2em] mt-3 uppercase opacity-50  ${isDarkMode ? 'text-white' : 'text-black'
+                }`}>
+                score: <span className="font-bold opacity-100">{score}</span>
               </div>
             </div>
 
-            <div className="mt-40 w-full flex justify-center">
+            <div className="w-full flex justify-center items-center py-4">
               <GameBoard shapes={shapes} onShapeClick={handleHit} />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 export default App;
