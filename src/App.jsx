@@ -14,7 +14,7 @@ function App() {
   const { isDarkMode, toggleTheme } = useTheme()
 
   // Pulling everything from your custom hook
-  const { timeLeft, isGameOver, addTime, restartGame, score, isActive, startGame } = useGameLogic();
+  const { timeLeft, isGameOver, addTime, restartGame, score, isActive, startGame, highScore } = useGameLogic();
 
 
 
@@ -199,6 +199,10 @@ function App() {
               <div className={`font-mono text-[10px] sm:text-xs tracking-[0.2em] mt-3 uppercase opacity-50  ${isDarkMode ? 'text-white' : 'text-black'
                 }`}>
                 score: <span className="font-bold opacity-100">{score}</span>
+                {highScore > 0 && (
+                  <span className="ml-2">Best: <span className="font-bold">{highScore}</span></span>
+                )}
+
               </div>
             </div>
 
