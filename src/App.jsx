@@ -15,16 +15,21 @@ import LiquidFilter from './assets/svg/liquidFilter';
 import { useDailyReward } from './hooks/useDailyReward';
 import DailyRewardBadge from './components/DailyRewardBadge';
 import CoinDisplay from './components/coinDisplay';
-import { useChaosEngine } from './hooks/useChaosEngine';
 
 function App() {
   const [shapes, setShapes] = useState([]);
   const [currentSize, setCurrentSize] = useState(100);
   const { isDarkMode, toggleTheme } = useTheme();
-  const { timeLeft, isGameOver, addTime, restartGame, score, isActive, startGame, highScore } = useGameLogic();
+  const {
+    timeLeft, isGameOver, addTime, restartGame, score,
+    isActive, startGame, highScore, chaosLevel, isFlashActive
+  } = useGameLogic();
   const { canClaim, rewardHistory, claimReward, addCoins, coins } = useDailyReward();
   const lastReward = rewardHistory.length > 0 ? rewardHistory[rewardHistory.length - 1] : { icon: '💧' };  // --- BRAIN: Chaos & Shape Generation ---
-  const { intensity, shouldShake } = useChaosEngine(score, highScore, isActive);
+  // Triggered when we are breaking the record
+  const shouldShake = score >= highScore && isActive && score > 0;
+
+
 
   const handleHit = () => {
     if (isGameOver) return;
@@ -52,7 +57,9 @@ function App() {
 
     addTime();
     setShapes([newShape]);
-    if (navigator.vibrate) navigator.vibrate(50);
+    if (score >= highScore && window.navigator.vibrate) {
+      window.navigator.vibrate([10, 30, 10]);
+    }
   };
 
 
@@ -87,7 +94,7 @@ function App() {
         document.title = document.title === "❌ GAME OVER" ? `Score: ${score}! 🎯` : "❌ GAME OVER";
       }, 1000);
     } else {
-      document.title = isActive ? `Looking... 👀 (${score})` : `Loooker v1.2.2`;
+      document.title = isActive ? `Looking... 👀 (${score})` : `Loooker v1.3`;
     }
     return () => clearInterval(titleInterval);
   }, [isGameOver, isActive, score]);
@@ -95,10 +102,11 @@ function App() {
   return (
     <motion.div className={`App relative min-h-[100dvh] w-full flex flex-col items-center transition-all duration-700 ${isDarkMode ? 'bg-[#0f0f1a] dark-mode' : 'bg-[#f8fafc] light-mode'}`}
       animate={shouldShake ? {
-        x: [0, -intensity * 2, intensity * 2, 0],
-        y: [0, intensity * 2, -intensity * 2, 0]
+        x: [0, -chaosLevel * 2.5, chaosLevel * 2.5, 0],
+        y: [0, chaosLevel * 1.5, -chaosLevel * 1.5, 0],
+        rotate: [0, -chaosLevel * 0.4, chaosLevel * 0.4, 0]
       } : {}}
-      transition={{ repeat: Infinity, duration: 0.1 }}
+      transition={{ repeat: Infinity, duration: 0.08, ease: "linear" }}
     >
 
       <LiquidFilter />
@@ -152,6 +160,19 @@ function App() {
               <GameBoard shapes={shapes} onShapeClick={handleHit} />
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* --- THE SHOCKWAVE OVERLAY --- */}
+      <AnimatePresence>
+        {isFlashActive && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] pointer-events-none backdrop-invert backdrop-brightness-110"
+            style={{ mixBlendMode: 'difference' }}
+          />
         )}
       </AnimatePresence>
     </motion.div>

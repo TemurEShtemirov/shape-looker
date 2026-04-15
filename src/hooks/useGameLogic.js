@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 export const useGameLogic = () => {
   const [score, setScore] = useState(0);
@@ -7,58 +7,70 @@ export const useGameLogic = () => {
     return saved ? parseInt(saved, 10) : 0;
   });
 
-  // We use a Ref here because we want to track this "lock"
-  // without triggering extra re-renders.
-  const hasVibratedForRecord = useRef(false);
-
   const [timeLeft, setTimeLeft] = useState(3);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isActive, setIsActive] = useState(false);
 
-  useEffect(() => {
-    // 1. BEST SCORE & VIBRATION LOGIC
-    if (score > highScore) {
-      setHighScore(score);
-      localStorage.setItem("shapeLooker_best", score.toString());
+  // v1.3 Sensory States
+  const [chaosLevel, setChaosLevel] = useState(0);
+  const [isFlashActive, setIsFlashActive] = useState(false);
 
-      // Only vibrate if the lock is open and score is actually valid
-      if (!hasVibratedForRecord.current && score > 0) {
-        if (window.navigator.vibrate) {
-          window.navigator.vibrate([75, 100, 75]);
-        }
-        hasVibratedForRecord.current = true; // Close the lock for this game
+  useEffect(() => {
+    // 1. RECORD & CHAOS CALCULATION
+    if (score >= highScore && score > 0) {
+      if (score > highScore) {
+        setHighScore(score);
+        localStorage.setItem("shapeLooker_best", score.toString());
       }
+      // Intensity grows every 5 points past the record
+      const intensity = Math.floor((score - (highScore - (score % 5))) / 5) + 1;
+      setChaosLevel(Math.min(intensity, 8));
     }
 
-    // 2. GAME STATE LOGIC
     if (!isActive || isGameOver || timeLeft <= 0) {
       if (timeLeft <= 0 && isActive) setIsGameOver(true);
       return;
     }
 
+    // 2. THE OVERCLOCK TIMER
+    // The clock actually ticks faster as chaos increases (1000ms down to 800ms)
+    const tickRate = 1000 - chaosLevel * 25;
     const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
+      setTimeLeft((prev) => Math.max(prev - 1, 0));
+    }, tickRate);
 
     return () => clearInterval(timer);
-  }, [timeLeft, isActive, isGameOver, score, highScore]);
+  }, [timeLeft, isActive, isGameOver, score, highScore, chaosLevel]);
+
+  const addTime = () => {
+    if (isGameOver) return;
+    setScore((prev) => prev + 1);
+
+    // Diminishing returns on time bonus
+    const timeBonus = score > 40 ? 0.4 : score > 20 ? 0.7 : 1;
+    setTimeLeft((prev) => Math.min(prev + timeBonus, 5));
+
+    // Flash & Vibration logic for Record Breaking
+    if (score >= highScore) {
+      setIsFlashActive(true);
+      setTimeout(() => setIsFlashActive(false), 80);
+
+      if (window.navigator.vibrate) {
+        const vib = Math.max(20, 70 - chaosLevel * 10);
+        window.navigator.vibrate([vib, 30, vib]);
+      }
+    } else {
+      if (window.navigator.vibrate) window.navigator.vibrate(30);
+    }
+  };
 
   const startGame = () => {
     setIsActive(true);
     setIsGameOver(false);
     setScore(0);
     setTimeLeft(3);
-    hasVibratedForRecord.current = false; // Reset the lock for the new round
+    setChaosLevel(0);
     if (window.navigator.vibrate) window.navigator.vibrate(100);
-  };
-
-  const addTime = () => {
-    if (isGameOver) return;
-    setScore((prev) => prev + 1);
-    setTimeLeft((prev) => Math.min(prev + 1, 5));
-
-    // Quick haptic feedback for regular hits (optional)
-    if (window.navigator.vibrate) window.navigator.vibrate(50);
   };
 
   const restartGame = () => {
@@ -66,7 +78,7 @@ export const useGameLogic = () => {
     setIsGameOver(false);
     setScore(0);
     setTimeLeft(3);
-    hasVibratedForRecord.current = false; // Reset the lock
+    setChaosLevel(0);
   };
 
   return {
@@ -78,5 +90,7 @@ export const useGameLogic = () => {
     score,
     highScore,
     isActive,
+    chaosLevel,
+    isFlashActive,
   };
 };

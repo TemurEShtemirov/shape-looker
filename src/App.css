@@ -6,6 +6,11 @@
         sans-serif;
 }
 
+.App {
+    transform: scale(1.05);
+    transition: filter 0.1s ease-out;
+}
+
 .scene-container {
     position: absolute;
     width: 100%;
