@@ -6,9 +6,13 @@
         sans-serif;
 }
 
+
 .App {
-    transform: scale(1.05);
+    /* Only keep the non-moving parts here */
     transition: filter 0.1s ease-out;
+    width: 100%;
+    min-height: 100vh;
+    overflow: hidden;
 }
 
 .scene-container {

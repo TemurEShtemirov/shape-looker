@@ -1,5 +1,5 @@
-import "../assets/css/gameBar.css";
-import { useTheme } from "../context/ThemeContext";
+import "../../assets/css/gameBar.css";
+import { useTheme } from "../../context/ThemeContext";
 import Shape from "./shape";
 
 const GameBoard = ({ shapes, onShapeClick }) => {

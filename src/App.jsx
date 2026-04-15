@@ -4,17 +4,18 @@ import { useGameLogic } from './hooks/useGameLogic';
 import { useTheme } from './context/ThemeContext';
 import { getRandomPos, getRandomPaletteColor } from './utils/random';
 
+
 // Components
-import GameBoard from './components/gameBoard';
-import Timer from './components/timer';
-import ThemeToggleButton from './components/ThemeToggleButton';
-import StartScreen from './components/StartScreen'; // New
-import GameOverScreen from './components/GameOverScreen'; // New
-import AuthorTag from './components/AuthorTag'; // New
+import GameBoard from './components/game/gameBoard';
+import Timer from './components/ui/timer';
+import ThemeToggleButton from './components/ui/ThemeToggleButton';
+import StartScreen from './components/screen/StartScreen'; // New
+import GameOverScreen from './components/screen/GameOverScreen'; // New
+import AuthorTag from './components/ui/AuthorTag'; // New
 import LiquidFilter from './assets/svg/liquidFilter';
 import { useDailyReward } from './hooks/useDailyReward';
-import DailyRewardBadge from './components/DailyRewardBadge';
-import CoinDisplay from './components/coinDisplay';
+import DailyRewardBadge from './components/screen/DailyRewardBadge';
+import CoinDisplay from './components/ui/coinDisplay';
 
 function App() {
   const [shapes, setShapes] = useState([]);

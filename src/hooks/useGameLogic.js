@@ -48,7 +48,7 @@ export const useGameLogic = () => {
 
     // Diminishing returns on time bonus
     const timeBonus = score > 40 ? 0.4 : score > 20 ? 0.7 : 1;
-    setTimeLeft((prev) => Math.min(prev + timeBonus, 5));
+    setTimeLeft((prev) => Math.floor(Math.min(prev + timeBonus, 5)));
 
     // Flash & Vibration logic for Record Breaking
     if (score >= highScore) {
