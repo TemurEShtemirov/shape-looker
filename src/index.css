@@ -3,6 +3,21 @@
 /* Optimized iOS 26 Material */
 /* index.css */
 
+@keyframes liquid-drift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
 .fluid-btn {
   @apply flex items-center justify-center transition-all duration-500;
   /* Clean glass - no internal gradients that cause glitches */
@@ -16,6 +31,10 @@
   width: auto;
   border-radius: 40px !important;
   background: rgba(255, 255, 255, 0.12);
+  background-size: 200% 200%;
+  animation: liquid-drift 4s ease infinite;
+  /* This creates the liquid depth */
+  overflow: hidden;
 }
 
 /* Specific button surface for Dark Mode */
@@ -28,7 +47,7 @@
 .light-mode-container .fluid-btn {
   background: rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.1);
-  color: black !important;
+  color: rgb(0, 96, 100) !important;
 }
 
 /* THE HOVER: Smooth organic shift, not a broken oval */

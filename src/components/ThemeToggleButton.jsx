@@ -15,7 +15,7 @@ const ThemeToggleButton = ({ isDarkMode, toggleTheme }) => {
     return (
         <motion.button
             onClick={handleThemeClick} // Point this to your new function
-            className="fluid-btn fixed top-8 right-8 z-[999] min-w-[120px] min-h-[30px] text-[10px] font-mono tracking-widest"
+            className={isDarkMode ? 'fluid-btn fixed top-8 right-8 z-[999] min-w-[120px] min-h-[30px] text-[10px] font-mono tracking-widest' : 'fluid-btn fixed top-8 right-8 z-[999] min-w-[120px] min-h-[30px] text-[10px] font-mono tracking-widest inset-shadow-sm inset-shadow-indigo-500/50'}
             whileHover={{
                 scale: 1.05,
                 borderRadius: "20px 20px 20px 20px", // Rounded, but not distorted
@@ -25,7 +25,7 @@ const ThemeToggleButton = ({ isDarkMode, toggleTheme }) => {
             }}
             whileTap={{ scale: 0.95 }}
         >
-            <span className="flex items-center gap-2">
+            <span className={`flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>
                 {isDarkMode ? '🌙 DARK_MODE' : '☀️ LIGHT_MODE'}
             </span>
         </motion.button>
